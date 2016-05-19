@@ -1,3 +1,11 @@
+
+# =========================
+# Project Specific Ignores
+# =========================
+locallol.db
+__pycache__
+
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

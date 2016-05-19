@@ -3,6 +3,7 @@ import http.client
 import json
 import datetime
 import time
+import developerKeyDialog
 
 def DatabaseSetup():
     conn = sqlite3.connect('locallol.db')
@@ -58,6 +59,7 @@ def DropTable(conn, table):
 def GetKey(conn):
     for row in conn.cursor().execute('''select key from keys'''):
         return row[0]
+    return ""
 
 # update all summoner records outdated by n days
 def UpdateSummoners(conn, key, days):
@@ -88,7 +90,6 @@ def InsertUpdateSummoner(conn, dict):
     c.execute('''Insert or replace Into Summoners (summonerId, name, profileIconId, revisionDate, summonerLevel, lastUpdated) values (?,?,?,?,?,?)'''\
               , (dict["id"], dict["name"], dict["profileIconId"], dict["revisionDate"], dict["summonerLevel"], datetime.datetime.now()))
     conn.commit()
-
 
 #inserts a new game for given summonerId with the data provided in dict, or does nothing if record exists
 def InsertGame(conn, summonerId, dict):
@@ -172,6 +173,15 @@ def ReadSummoners(conn, key, summonerNames):
         InsertUpdateSummoner(conn, responseDict[summonerName])
         CollectRecentGames(conn, key, responseDict[summonerName]["id"])
 
+def VerifyKey(key):
+    connection = http.client.HTTPSConnection('na.api.pvp.net')
+    headers = {'Content-type': 'application/json'}
+    connection.request('GET', '/api/lol/na/v1.2/champion/1?api_key={0}'.format(key), "", headers)
+    response = connection.getresponse()
+    if response.status == 200:
+        return True
+    else:
+        return False
 
 
 if __name__ == "__main__":
@@ -179,6 +189,12 @@ if __name__ == "__main__":
 
     #SetKey(conn,'16cd60ca-1319-43fd-96dc-3b114cb92e6e')
     key = GetKey(conn)
+    if len(key) == 0 or not VerifyKey(key):
+        if developerKeyDialog.PromptKey():
+            print('Valid Key Stored')
+        else:
+            print('No Key Stored')
+    #print(VerifyKey(key))
     #ReadSummoners(conn, key, "ChimpanXebra")
     #CollectRecentGames(conn, key, 30031870)
-    UpdateSummoners(conn, key, 1)
+    #UpdateSummoners(conn, key, 1)
