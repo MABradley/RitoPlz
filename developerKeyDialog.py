@@ -79,3 +79,4 @@ def PromptKey():
     return Dialog.exec()
 
 if __name__ == "__main__":
+    PromptKey()
