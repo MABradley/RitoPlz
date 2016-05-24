@@ -8,7 +8,7 @@ filters.
 
 
 #################
-     STATUS 
+    STATUS 
 #################
 
 05/23/2016
@@ -16,7 +16,7 @@ In heavy development, mostly proof of concept methods.
 
 
 #################
-  DEPENDENCIES
+    DEPENDENCIES
 #################
 
 RitoPlz is programmed in Python, and thus does not need
