@@ -3,14 +3,14 @@ import http.client
 import json
 import datetime
 import time
-import developerKeyDialog
+import developerKeyDialog, DataClasses
 
 def DatabaseSetup():
     conn = sqlite3.connect('locallol.db')
     c = conn.cursor()
 
     # Drop Table for Schema Changes
-    #c.execute('''drop table players''')
+    #c.execute('''drop table Participants''')
 
     # Create Table
     c.execute('''CREATE TABLE IF Not EXISTS Summoners
@@ -26,20 +26,21 @@ def DatabaseSetup():
                   quadraKills int, sightWardsBought int, spell1Cast int, spell2Cast int, spell3Cast int, spell4Cast int, summonSpell1Cast int, summonSpell2Cast int, superMonsterKilled int, team int, teamObjective int, timePlayed int, totalDamageDealt int, totalDamageDealtToChampions int, totalDamageTaken int,\
                   totalHeal int, totalPlayerScore int, totalScoreRank int, totalTimeCrowdControlDealt int, totalUnitsHealed int, tripleKills int, trueDamageDealtPlayer int, trueDamageDealtToChampions int, trueDamageTaken int,\
                   turretsKilled int, unrealKills int, victoryPointTotal int, visionWardsBought int, wardKilled int, wardPlaced int, win bit)''')
-    c.execute('''create table if not exists players (gameId int, summonerId int, teamId int, championId int, win bit, CONSTRAINT pkId PRIMARY KEY (gameId, summonerId))''')
+    c.execute('''create table if not exists Participants (gameId int, summonerId int, teamId int, championId int, win bit, PRIMARY KEY (gameId, summonerId))''')
+
 
     # Save (commit) the changes
     conn.commit()
 
     # Select
-    #for row in c.execute('SELECT * FROM summoners ORDER BY summonerid'):
-    #    print(row)
+    for row in c.execute('SELECT * FROM summoners ORDER BY summonerid'):
+        DataClasses.Summoner(row).Print()
     #for row in c.execute('SELECT * FROM keys'):
          #print(row)
-    #for row in c.execute('Select summonerId, GameId, createDate from games'):
-    #    print(row)
-    #for row in c.execute('select gameId, summonerId, win from players'):
-    #    print(row)
+    for row in c.execute('Select * from games'):
+        DataClasses.Game(row).Print()
+    for row in c.execute('select * from Participants'):
+        DataClasses.Participant(row).Print()
 
     # We can also close the connection if we are done with it.
     # Just be sure any changes have been committed or they will be lost.
@@ -65,7 +66,7 @@ def GetKey(conn):
 def UpdateSummoners(conn, key, days):
     c = conn.cursor()
     names = ""
-    results = list(c.execute('''select name, summonerId from summoners where lastUpdated <= (SELECT date( 'now','+{0} day'))'''.format(str(days))))
+    results = list(c.execute('''select name, summonerId from summoners where lastUpdated <= (SELECT date( 'now','-{0} day'))'''.format(str(days))))
     for row in results:
         print(row)
         if len(names) < 1:
@@ -77,7 +78,7 @@ def UpdateSummoners(conn, key, days):
         ReadSummoners(conn, key, names)
 
 def DeleteSummoner(conn, name):
-    conn.cursor().execute('''delete from summoners where name = '{0}' COLLATE NOCASE'''.format(name))
+    conn.cursor().execute('''delete from Summoners where name = '{0}' COLLATE NOCASE'''.format(name))
     conn.commit()
 
 #Inserts a new summoner with the data provided in dict, or replaces the old record if existing
@@ -95,17 +96,18 @@ def InsertUpdateSummoner(conn, dict):
 def InsertGame(conn, summonerId, dict):
     c = conn.cursor()
     stats = dict["stats"]
-    c.execute('''insert or ignore into players (gameId, summonerId, championId, teamId, win) values ('{0}', '{1}', '{2}', '{3}', '{4}')'''.format(dict["gameId"], summonerId, dict["championId"], dict["teamId"], stats["win"]))
+    c.execute('''insert or replace into Participants (gameId, summonerId, championId, teamId, win) values ('{0}', '{1}', '{2}', '{3}', '{4}')'''.format(dict["gameId"], summonerId, dict["championId"], dict["teamId"], stats["win"]))
     for row in dict["fellowPlayers"]:
         if row["teamId"] == dict["teamId"]:
-            c.execute('''insert or ignore into players (gameId, summonerId, championId, teamId, win) values ('{0}', '{1}', '{2}', '{3}', '{4}')'''.format(dict["gameId"], row["summonerId"], row["championId"], row["teamId"], stats["win"]))
+            c.execute('''insert or replace into Participants (gameId, summonerId, championId, teamId, win) values ('{0}', '{1}', '{2}', '{3}', '{4}')'''.format(dict["gameId"], row["summonerId"], row["championId"], row["teamId"], stats["win"]))
         else:
-            c.execute('''insert or ignore into players (gameId, summonerId, championId, teamId, win) values ('{0}', '{1}', '{2}', '{3}', '{4}')'''.format(dict["gameId"], row["summonerId"], row["championId"], row["teamId"], not stats["win"]))
+            c.execute('''insert or replace into Participants (gameId, summonerId, championId, teamId, win) values ('{0}', '{1}', '{2}', '{3}', '{4}')'''.format(dict["gameId"], row["summonerId"], row["championId"], row["teamId"], not stats["win"]))
     #return if record exists, there won't be updates to these records
     for row in c.execute('''select summonerId from games where summonerId = {0} and gameId = {1}'''.format(summonerId, dict["gameId"])):
-        print("Returned, GameId: {0}, SummonerId: {1}".format(dict["gameId"], summonerId))
+        #print("Returned, GameId: {0}, SummonerId: {1}".format(dict["gameId"], summonerId))
+        conn.commit()
         return
-    print("Didn't Return, GameId: {0}, SummonerId: {1}".format(dict["gameId"], summonerId))
+    #print("Didn't Return, GameId: {0}, SummonerId: {1}".format(dict["gameId"], summonerId))
     c.execute('''insert into games\
                   (summonerId, championId, createDate, gameId, gameMode, gameType, invalid, ipEarned, summonerLevel, mapId, spell1, spell2, subType, teamId,\
                   assists, barracksKilled, bountyLevel, championsKilled, combatPlayerScore, consumablesPurchased, damageDealtPlayer, doubleKills, firstBlood, gold, goldEarned, goldSpent, item0, item1, item2, item3, item4, item5, item6,\
@@ -187,13 +189,12 @@ def VerifyKey(key):
 if __name__ == "__main__":
     conn = DatabaseSetup()
 
-    #SetKey(conn,'16cd60ca-1319-43fd-96dc-3b114cb92e6e')
     key = GetKey(conn)
-    if len(key) == 0 or not VerifyKey(key):
-        if developerKeyDialog.PromptKey():
-            print('Valid Key Stored')
-        else:
-            print('No Key Stored')
+    #if len(key) == 0 or VerifyKey(key):
+    #    if developerKeyDialog.PromptKey():
+    #       print('Valid Key Stored')
+    #    else:
+    #        print('No Key Stored')
     #print(VerifyKey(key))
     #ReadSummoners(conn, key, "ChimpanXebra")
     #CollectRecentGames(conn, key, 30031870)
