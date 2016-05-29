@@ -11,9 +11,8 @@ filters.
     STATUS 
 #################
 
-05/23/2016
-In heavy development, mostly proof of concept methods.
-
+05/28/2016
+Basic classes and methods created
 
 #################
     DEPENDENCIES
