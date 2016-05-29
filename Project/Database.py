@@ -155,6 +155,8 @@ class Database:
                 self.cursor.execute('''INSERT INTO Requests (priority, domain, path, callType) VALUES ({0},'{1}','{2}',{3})'''.format(self.GetNextRequest().priority + 1, name, path, callType))
         else:
             self.cursor.execute('''INSERT INTO Requests (priority, domain, path, callType) VALUES ({0},'{1}','{2}',{3})'''.format(priority, name, path, callType))
+        self.Commit()
+        self.PrintRequests()
 
     def GetNextRequest(self):
         for row in self.cursor.execute('SELECT * FROM Requests ORDER BY priority DESC'):

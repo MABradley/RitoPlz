@@ -15,7 +15,7 @@ class Summoner:
         self.lastUpdatedDate = record[5]
 
     def Print(self):
-        pprint (vars(self))
+        pprint(vars(self))
 
 class Player:
     def __init__(self, record):
@@ -26,7 +26,7 @@ class Player:
         self.win = record[4] == "True"
 
     def Print(self):
-        pprint (vars(self))
+        pprint(vars(self))
 
 class Request:
     def __init__(self, record):
@@ -37,7 +37,7 @@ class Request:
         self.callType = record[4]
 
     def Print(self):
-        pprint (vars(self))
+        pprint(vars(self))
 
     class callType(Enum):
         getSummonersByName = 0
@@ -150,7 +150,7 @@ class Game:
         self.win = record[102] == "True"
 
     def Print(self):
-        pprint (vars(self))
+        pprint(vars(self))
 
 class GameFilter:
     def __init__(self):
@@ -220,10 +220,11 @@ class SummonerFilter:
         if self.summonerIdsStr is not None:
             whereClause += self.AndOrSpace() + "summonerId in {0}".format(self.summonerIdsStr)
         if self.summonerNamesStr is not None:
-            whereClause += self.AndOrSpace() + "name in {0}".format(self.summonerNamesStr)
+            whereClause += self.AndOrSpace() + "name in {0} COLLATE NOCASE".format(self.summonerNamesStr)
         if self.summonerName is not None:
-            whereClause += self.AndOrSpace() + "summonerName = '{0}'".format(self.summonerName)
+            whereClause += self.AndOrSpace() + "name = '{0}' COLLATE NOCASE".format(self.summonerName)
         if not self.hasFirstCondition:
             return ""
+        #print("WhereClause: " + whereClause)
         return whereClause
             

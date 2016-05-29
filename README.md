@@ -27,6 +27,7 @@ dependencies in order to run successfully:
 1. Python 3.4.X (http://www.python.org)
 2. PyQt5 (http://www.riverbankcomputing.co.uk/software/pyqt/download5)
 3. Riot Games API Key (https://developer.riotgames.com)
+4. Requests (http://docs.python-requests.org/en/master/user/install/#install)
 
 #################
     CONVENTIONS
