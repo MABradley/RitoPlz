@@ -6,13 +6,15 @@ The primary purpose of this project is to collect League of Legends
 game statistics, and view personal performance with a variety of
 filters.
 
-
 #################
     STATUS 
 #################
 
 05/28/2016
-Basic classes and methods created
+* Basic classes and methods created for data collection
+
+05/25/2016
+* Proof of concept methods
 
 #################
     DEPENDENCIES
@@ -22,10 +24,18 @@ RitoPlz is programmed in Python, and thus does not need
 to be compiled to run.  However, be sure you have the following 
 dependencies in order to run successfully: 
 
-1) Python 3.4.X (http://www.python.org)
-2) PyQt5 (http://www.riverbankcomputing.co.uk/software/pyqt/download5)
-3) Riot Games API Key (https://developer.riotgames.com)
+1. Python 3.4.X (http://www.python.org)
+2. PyQt5 (http://www.riverbankcomputing.co.uk/software/pyqt/download5)
+3. Riot Games API Key (https://developer.riotgames.com)
 
+#################
+    Conventions
+#################
+
+* Property names and local variables should be camel case
+* Class and method names should be pascal case
+* SQL keywords should be uppercase
+* Commented code should be correctly indented after removing the first character in the line
 
 #################
     COPYRIGHT
@@ -50,3 +60,4 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+

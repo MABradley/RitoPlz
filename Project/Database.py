@@ -80,6 +80,14 @@ class Database:
         for row in self.cursor.execute('SELECT key FROM keys'):
             return row[0]
         return ""
+
+    def PrintTableCounts(self):
+        print('## RECORD COUNTS ##')
+        print('# Summoners: ' + "{:<5}".format(str(len(self.cursor.execute('SELECT * FROM Summoners').fetchall()))) + '#')
+        print('# Games    : ' + "{:<5}".format(str(len(self.cursor.execute('SELECT * FROM Games').fetchall()))) + '#')
+        print('# Players  : ' + "{:<5}".format(str(len(self.cursor.execute('SELECT * FROM Players').fetchall()))) + '#')
+        print('# Requests : ' + "{:<5}".format(str(len(self.cursor.execute('SELECT * FROM Requests').fetchall()))) + '#')
+        print('###################')
     
     def DeleteSummoner(self, summonerId):
         self.cursor.execute('DELETE FROM summoners WHERE summonerId = {0}'.format(summonerId))
@@ -163,7 +171,7 @@ class Database:
     # Add a call for each summoner outdated by 1 day or more
     def CheckForOutdatedSummoners(self):
         names = ""
-        for row in self.cursor.execute('''SELECT name, summonerId FROM summoners WHERE lastUpdated <= (SELECT DATE( 'now','-1 day'))'''):
+        for row in self.cursor.execute('''SELECT name, summonerId FROM Summoners WHERE lastUpdated <= (SELECT DATE( 'now','-1 day'))'''):
             if len(names) < 1:
                 names = row[0]
             else:
@@ -179,3 +187,36 @@ class Database:
 
     def RequestRecentGames(self, summonerId):
         self.AddRequest(None, 'na.api.pvp.net','/api/lol/na/v1.3/game/by-summoner/{0}/recent?api_key={1}'.format(summonerId, self.key), DataClasses.Request.callType.getRecentGamesBySummoner.value)
+
+    def SelectGames(self, gameFilter):
+        if not isinstance(gameFilter, DataClasses.GameFilter):
+            raise TypeError('gameFilter must be of type DataClasses.GameFilter')
+        result = set()
+        for row in self.cursor.execute("SELECT * FROM Games " + gameFilter.GetWhereClause()):
+            result.add(DataClasses.Game(row))
+        return result
+
+    def GetGame(self, gameId):
+        filter = DataClasses.GameFilter()
+        filter.gameId = gameId
+        return self.SelectGames(filter)
+
+    def SelectSummoners(self, summonerFilter):
+        if not isinstance(summonerFilter, DataClasses.SummonerFilter):
+            raise TypeError('summonerFilter must be of type DataClasses.SummonerFilter')
+        result = set()
+        for row in self.cursor.execute("SELECT * FROM Summoners " + summonerFilter.GetWhereClause()):
+            result.add(DataClasses.Summoner(row))
+        return result
+
+    def GetSummonerWinRate(self, summonerId):
+        filter = DataClasses.GameFilter()
+        filter.summonerId = summonerId
+        wins = 0
+        games = self.SelectGames(filter)
+        for game in games:
+            if game.win:
+                wins += 1
+        #print('Games - ' + str(len(games)))
+        #print('Wins - ' + str(wins))
+        return 100 * float(wins)/float(len(games))
