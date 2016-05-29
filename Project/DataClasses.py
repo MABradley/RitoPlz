@@ -1,5 +1,9 @@
+from pathlib import Path
+print('Running' if __name__ == '__main__' else 'Importing', Path(__file__).resolve())
+
 import datetime
 from pprint import pprint
+from enum import Enum
 
 class Summoner:
     def __init__(self, record):
@@ -13,7 +17,7 @@ class Summoner:
     def Print(self):
         pprint (vars(self))
 
-class Participant:
+class Player:
     def __init__(self, record):
         self.GameId = record[0]
         self.SummonerId = record[1]
@@ -23,6 +27,21 @@ class Participant:
 
     def Print(self):
         pprint (vars(self))
+
+class Request:
+    def __init__(self, record):
+        self.requestId = record[0]
+        self.priority = record[1]
+        self.domain = record[2]
+        self.path = record[3]
+        self.callType = record[4]
+
+    def Print(self):
+        pprint (vars(self))
+
+    class callType(Enum):
+        getSummonersByName = 0
+        getRecentGamesBySummoner = 1
 
 class Game:
     def __init__(self, record):
