@@ -29,7 +29,7 @@ dependencies in order to run successfully:
 3. Riot Games API Key (https://developer.riotgames.com)
 
 #################
-    Conventions
+    CONVENTIONS
 #################
 
 * Property names and local variables should be camel case

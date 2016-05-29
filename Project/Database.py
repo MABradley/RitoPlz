@@ -220,3 +220,15 @@ class Database:
         #print('Games - ' + str(len(games)))
         #print('Wins - ' + str(wins))
         return 100 * float(wins)/float(len(games))
+
+    def GetWinRateForFilter(self, gameFilter):
+        if not isinstance(gameFilter, DataClasses.GameFilter):
+            raise TypeError('gameFilter must be of type DataClasses.GameFilter')
+        wins = 0
+        games = self.SelectGames(gameFilter)
+        for game in games:
+            if game.win:
+                wins += 1
+        #print('Games - ' + str(len(games)))
+        #print('Wins - ' + str(wins))
+        return 100 * float(wins)/float(len(games))
