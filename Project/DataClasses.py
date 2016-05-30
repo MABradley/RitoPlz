@@ -32,9 +32,8 @@ class Request:
     def __init__(self, record):
         self.requestId = record[0]
         self.priority = record[1]
-        self.domain = record[2]
-        self.path = record[3]
-        self.callType = record[4]
+        self.url = record[2]
+        self.callType = record[3]
 
     def Print(self):
         pprint(vars(self))

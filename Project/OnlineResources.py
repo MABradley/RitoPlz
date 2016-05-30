@@ -1,7 +1,6 @@
 from pathlib import Path
 print('Running' if __name__ == '__main__' else 'Importing', Path(__file__).resolve())
 
-import http.client
 import json
 import os
 from pprint import pprint
@@ -19,9 +18,12 @@ class DataDragon:
             responseDict = json.loads(response.text)
             self.profileIconVersion = responseDict["n"]["profileicon"]
         else:
-            print("DataDragon: Unable to Contact global.api.pvp.net")
+            print("DataDragon: Unable to retrieve static data, response:")
+            print(response.text)
 
     def GetProfileIconPath(self, profileIconId):
+        if not os.path.exists(os.getcwd() + '/resources/profileicons/'):
+            os.makedirs(os.getcwd() + '/resources/profileicons/')
         response = requests.get('https://ddragon.leagueoflegends.com/cdn/{0}/img/profileicon/{1}.png'.format(self.profileIconVersion, profileIconId), stream=True)
         if response.status_code == 200:
             with open(os.getcwd() + '/resources/profileicons/icon{0}.png'.format(profileIconId), 'wb') as file:
@@ -29,7 +31,8 @@ class DataDragon:
                 shutil.copyfileobj(response.raw, file)
                 return os.getcwd() + '/resources/profileicons/icon{0}.png'.format(profileIconId)
         else:
-            print("DataDragon: Unable to Contact ddragon.leagueoflegends.com")
+            print("DataDragon: Unable to retrieve profile icon, response:")
+            print(response.text)
             if os.path.exists(os.getcwd() + '/resources/profileicons/icon{0}.png'.format(profileIconId)):
                 return os.getcwd() + '/resources/profileicons/icon{0}.png'.format(profileIconId)
         return None

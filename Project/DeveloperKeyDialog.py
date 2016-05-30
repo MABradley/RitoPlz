@@ -33,6 +33,7 @@ class DeveloperKeyDialog(object):
         self.riotApiLogo.setGeometry(QtCore.QRect(50, 70, 60, 60))
         self.riotApiLogo.setText("")
         self.riotApiLogo.setPixmap(QtGui.QPixmap(os.getcwd() + "\\resources\\riotApiLogo.png"))
+        self.windowIcon = QtGui.QIcon(QtGui.QPixmap(os.getcwd() + "\\resources\windowIcon.png"))
         self.riotApiLogo.setScaledContents(True)
         self.riotApiLogo.setObjectName("riotApiLogo")
         self.riotApiLink = QtWidgets.QLabel(developerKeyDialog)
@@ -53,6 +54,7 @@ class DeveloperKeyDialog(object):
     def RetranslateUi(self, developerKeyDialog):
         _translate = QtCore.QCoreApplication.translate
         developerKeyDialog.setWindowTitle(_translate("developerKeyDialog", "Set Developer Key"))
+        developerKeyDialog.setWindowIcon(self.windowIcon)
         self.messageLabel.setText(_translate("developerKeyDialog", "Please Provide a Valid Developer Key:"))
         self.keyInput.setText(_translate("developerKeyDialog", self.apiConnection.database.GetKey()))
         self.riotApiLink.setText(_translate("developerKeyDialog", "<a href=\"https://developer.riotgames.com/\">Riot Games API</a>"))

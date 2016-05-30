@@ -3,6 +3,7 @@ print('Running' if __name__ == '__main__' else 'Importing', Path(__file__).resol
 
 import sqlite3
 import datetime
+import math
 import DataClasses
 
 class Database:
@@ -11,7 +12,7 @@ class Database:
         self.cursor = self.conn.cursor()
         
         # Drop Table for Schema Changes
-        self.cursor.execute('''DROP TABLE Requests''')
+        #self.cursor.execute('''DROP TABLE Requests''')
     
         # Create Table
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS Summoners
@@ -27,9 +28,11 @@ class Database:
                       quadraKills int, sightWardsBought int, spell1Cast int, spell2Cast int, spell3Cast int, spell4Cast int, summonSpell1Cast int, summonSpell2Cast int, superMonsterKilled int, team int, teamObjective int, timePlayed int, totalDamageDealt int, totalDamageDealtToChampions int, totalDamageTaken int,\
                       totalHeal int, totalPlayerScore int, totalScoreRank int, totalTimeCrowdControlDealt int, totalUnitsHealed int, tripleKills int, trueDamageDealtPlayer int, trueDamageDealtToChampions int, trueDamageTaken int,\
                       turretsKilled int, unrealKills int, victoryPointTotal int, visionWardsBought int, wardKilled int, wardPlaced int, win bit)''')
-        self.cursor.execute('CREATE TABLE IF NOT EXISTS Requests (requestId INTEGER PRIMARY KEY NOT NULL, priority int, domain text, path text, callType int)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS Requests (requestId INTEGER PRIMARY KEY NOT NULL, priority int, url text, callType int)')
     
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Players (gameId int, summonerId int, teamId int, championId int, win bit, PRIMARY KEY (gameId, summonerId))')
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS RequestStatus (requestId int, status int)") # 0 failed, 1 success
+        self.cursor.execute("DELETE FROM RequestStatus") # this is only relevant per execution of the application
     
         # Save (commit) the changes
         self.Commit()
@@ -74,6 +77,7 @@ class Database:
     def SetKey(self, developerKey):
         self.cursor.execute('DELETE FROM keys')
         self.cursor.execute('''INSERT INTO keys (key) VALUES ('{0}')'''.format(developerKey))
+        self.key = self.GetKey()
         self.Commit()
 
     def GetKey(self):
@@ -144,19 +148,22 @@ class Database:
         #for i in dict:
         #    print(i, str(dict[i]))
         self.cursor.execute('''INSERT OR REPLACE INTO Summoners (summonerId, name, profileIconId, revisionDate, summonerLevel, lastUpdated) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}')'''.format(dict["id"], dict["name"], dict["profileIconId"], dict["revisionDate"], dict["summonerLevel"], datetime.datetime.now()))
-        self.AddRequest(None, 'na.api.pvp.net','/api/lol/na/v1.3/game/by-summoner/{0}/recent?api_key={1}'.format(dict["id"], self.key), DataClasses.Request.callType.getRecentGamesBySummoner.value)
+        self.AddRequest(None, 'https://na.api.pvp.net/api/lol/na/v1.3/game/by-summoner/{0}/recent?api_key={1}'.format(dict["id"], self.key), DataClasses.Request.callType.getRecentGamesBySummoner.value)
         self.Commit()
 
-    def AddRequest(self, priority, name, path, callType):
+    def AddRequest(self, priority, url, callType):
         if priority is None:
             if self.GetNextRequest() is None:
-                self.cursor.execute('''INSERT INTO Requests (priority, domain, path, callType) VALUES ({0},'{1}','{2}',{3})'''.format(1, name, path, callType))
+                self.cursor.execute('''INSERT INTO Requests (priority, url, callType) VALUES ({0},'{1}',{2})'''.format(1, url, callType))
+
             else:
-                self.cursor.execute('''INSERT INTO Requests (priority, domain, path, callType) VALUES ({0},'{1}','{2}',{3})'''.format(self.GetNextRequest().priority + 1, name, path, callType))
+                self.cursor.execute('''INSERT INTO Requests (priority, url, callType) VALUES ({0},'{1}',{2})'''.format(self.GetNextRequest().priority + 1, url, callType))
         else:
-            self.cursor.execute('''INSERT INTO Requests (priority, domain, path, callType) VALUES ({0},'{1}','{2}',{3})'''.format(priority, name, path, callType))
+            self.cursor.execute('''INSERT INTO Requests (priority, url, callType) VALUES ({0},'{1}',{2})'''.format(priority, url, callType))
+        id = self.cursor.lastrowid
         self.Commit()
-        self.PrintRequests()
+        return id
+        #self.PrintRequests()
 
     def GetNextRequest(self):
         for row in self.cursor.execute('SELECT * FROM Requests ORDER BY priority DESC'):
@@ -170,6 +177,15 @@ class Database:
         self.cursor.execute('DELETE FROM Requests WHERE requestId = {0}'.format(requestId))
         self.Commit()
 
+    def AddRequestStatus(self, requestId, status):
+        self.cursor.execute('INSERT INTO RequestStatus (requestId, status) VALUES ({0}, {1})'.format(requestId, status))
+        self.Commit()
+
+    def GetRequestStatus(self, requestId):
+        for row in self.cursor.execute('SELECT status FROM RequestStatus WHERE requestId = {0}'.format(requestId)):
+            return row[0]
+        return None
+
     # Add a call for each summoner outdated by 1 day or more
     def CheckForOutdatedSummoners(self):
         names = ""
@@ -180,15 +196,16 @@ class Database:
                 names += "," + row[0]
         if len(names) > 0:
             print('Updating Summoners: ' + names)
-            self.AddRequest(2, 'na.api.pvp.net', '/api/lol/na/v1.4/summoner/by-name/{0}?api_key={1}'.format(names, self.key), DataClasses.Request.callType.getSummonersByName.value)
+            self.AddRequest(2, 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/{0}?api_key={1}'.format(names, self.key), DataClasses.Request.callType.getSummonersByName.value)
         else:
             print('All Summoners Up To Date')
 
     def RequestSummoner(self, summonerName):
-        self.AddRequest(None, 'na.api.pvp.net', '/api/lol/na/v1.4/summoner/by-name/{0}?api_key={1}'.format(summonerName, self.key), DataClasses.Request.callType.getSummonersByName.value)
+        #print('Requested {0}'.format(summonerName))
+        return self.AddRequest(None, 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/{0}?api_key={1}'.format(summonerName, self.key), DataClasses.Request.callType.getSummonersByName.value)
 
     def RequestRecentGames(self, summonerId):
-        self.AddRequest(None, 'na.api.pvp.net','/api/lol/na/v1.3/game/by-summoner/{0}/recent?api_key={1}'.format(summonerId, self.key), DataClasses.Request.callType.getRecentGamesBySummoner.value)
+        self.AddRequest(None, 'https://na.api.pvp.net/api/lol/na/v1.3/game/by-summoner/{0}/recent?api_key={1}'.format(summonerId, self.key), DataClasses.Request.callType.getRecentGamesBySummoner.value)
 
     def SelectGames(self, gameFilter):
         if not isinstance(gameFilter, DataClasses.GameFilter):
@@ -206,9 +223,9 @@ class Database:
     def SelectSummoners(self, summonerFilter):
         if not isinstance(summonerFilter, DataClasses.SummonerFilter):
             raise TypeError('summonerFilter must be of type DataClasses.SummonerFilter')
-        result = set()
-        for row in self.cursor.execute("SELECT * FROM Summoners " + summonerFilter.GetWhereClause()):
-            result.add(DataClasses.Summoner(row))
+        result = {}
+        for row in self.cursor.execute("SELECT * FROM Summoners " + summonerFilter.GetWhereClause() + "ORDER BY summonerId"):
+            result[row[0]] = DataClasses.Summoner(row)
         return result
 
     def GetSummonerWinRate(self, summonerId):
@@ -221,7 +238,7 @@ class Database:
                 wins += 1
         #print('Games - ' + str(len(games)))
         #print('Wins - ' + str(wins))
-        return 100 * float(wins)/float(len(games))
+        return math.floor(100 * float(wins)/float(len(games)))
 
     def GetWinRateForFilter(self, gameFilter):
         if not isinstance(gameFilter, DataClasses.GameFilter):
