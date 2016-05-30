@@ -10,6 +10,9 @@ filters.
     STATUS 
 #################
 
+05/30/16
+* Tracked Summoners window
+
 05/28/2016
 * Basic classes and methods created for data collection
 
