@@ -16,6 +16,7 @@ class TrackedSummonersView(object):
         self.apiConnection = apiConnection
         self.mainWindow = mainWindow
         self.thread = None
+        self.fromLineEdit = False
         for summoner in database.SelectSummoners(DataClasses.SummonerFilter()):
             self.summoner = summoner
             break
@@ -28,27 +29,27 @@ class TrackedSummonersView(object):
         self.centralwidget = QtWidgets.QWidget(TrackedSummonersView)
         self.centralwidget.setObjectName("centralwidget")
         self.AddSummonerButton = QtWidgets.QPushButton(self.centralwidget)
-        self.AddSummonerButton.setGeometry(QtCore.QRect(290, 475, 93, 28))
+        self.AddSummonerButton.setGeometry(QtCore.QRect(390, 475, 93, 28))
         self.AddSummonerButton.setObjectName("AddSummonerButton")
         self.AddSummonerButton.clicked.connect(self.OnRequest)
         self.tableWidget = None
         self.DrawTable()
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit.setGeometry(QtCore.QRect(10, 480, 271, 22))
+        self.lineEdit.setGeometry(QtCore.QRect(10, 480, 371, 22))
         self.lineEdit.setObjectName("lineEdit")
         self.lineEdit.returnPressed.connect(self.AddSummonerButton.click)
         self.summonerEntryLabel = QtWidgets.QLabel(self.centralwidget)
         self.summonerEntryLabel.setGeometry(QtCore.QRect(10, 460, 200, 16))
         self.summonerEntryLabel.setObjectName("summonerEntryLabel")
-        self.errorLabel = QtWidgets.QLabel(self.centralwidget)
-        self.errorLabel.setGeometry(QtCore.QRect(20, 500, 300, 22))
-        self.errorLabel.setText("")
-        self.errorLabel.setObjectName("errorLabel")
+        self.statusBar = QtWidgets.QStatusBar()
+        self.mainWindow.setStatusBar(self.statusBar)
         self.windowIcon = QtGui.QIcon(QtGui.QPixmap(os.getcwd() + "\\resources\windowIcon.png"))
         TrackedSummonersView.setCentralWidget(self.centralwidget)
         TrackedSummonersView.setWindowIcon(self.windowIcon)
-
-        self.RetranslateUi(TrackedSummonersView)
+        _translate = QtCore.QCoreApplication.translate
+        TrackedSummonersView.setWindowTitle(_translate("TrackedSummonersView", "Tracked Summoners"))
+        self.AddSummonerButton.setText(_translate("TrackedSummonersView", "Request"))
+        self.summonerEntryLabel.setText(_translate("TrackedSummonersView", "Summoner Name"))
         QtCore.QMetaObject.connectSlotsByName(TrackedSummonersView)
 
     def DrawTable(self):
@@ -61,13 +62,16 @@ class TrackedSummonersView(object):
             #self.tableWidget.horizontalHeader().hide()
             self.tableWidget.setObjectName("tableWidget")
             self.tableWidget.setColumnWidth(0, 50)
-            self.tableWidget.setColumnWidth(1, 155)
+            self.tableWidget.setColumnWidth(1, 165)
             self.tableWidget.setColumnWidth(2, 50)
             self.tableWidget.setColumnWidth(3, 60)
             self.tableWidget.setColumnWidth(4, 60)
             self.tableWidget.setColumnWidth(5, 50)
-            self.tableWidget.setColumnWidth(6, 50)
-            self.tableWidget.setHorizontalHeaderLabels(( "Icon", "Summoner Name", "Level","Win %", "Games", "", ""))
+            self.tableWidget.setColumnWidth(6, 100)
+            self.tableWidget.setHorizontalHeaderLabels(( "", "Summoner Name", "Level","Win %", "Games", "", ""))
+            self.tableWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            self.tableWidget.setShowGrid(False)
+            self.tableWidget.setAlternatingRowColors(True)
         else:
             self.tableWidget.clearContents()
             self.tableWidget.setRowCount(len(summoners))
@@ -105,7 +109,7 @@ class TrackedSummonersView(object):
             refreshButton.setIconSize(refreshPixmap.rect().size())
             refreshButton.setStyleSheet("QPushButton{border:none;outline:none;}")
             refreshLayout.addWidget(refreshButton)
-            refreshLayout.setAlignment(QtCore.Qt.AlignCenter)
+            refreshLayout.setAlignment(QtCore.Qt.AlignLeft)
             refreshLayout.setContentsMargins(0,0,0,0)
             refreshButton.clicked.connect(partial(self.RefreshSummoner, summoner))
             refreshItem.setLayout(refreshLayout)
@@ -119,7 +123,7 @@ class TrackedSummonersView(object):
             deleteButton.setIconSize(deletePixmap.rect().size())
             deleteButton.setStyleSheet("QPushButton{border:none;outline:none;}")
             deleteLayout.addWidget(deleteButton)
-            deleteLayout.setAlignment(QtCore.Qt.AlignCenter)
+            deleteLayout.setAlignment(QtCore.Qt.AlignLeft)
             deleteLayout.setContentsMargins(0,0,0,0)
             deleteButton.clicked.connect(partial(self.DeleteSummoner, summoner))
             deleteItem.setLayout(deleteLayout)
@@ -142,6 +146,7 @@ class TrackedSummonersView(object):
 
     def OnRequest(self):
         self.RequestSummoner(self.lineEdit.text())
+        self.fromLineEdit = True
 
     def RefreshSummoner(self, summoner):
         self.RequestSummoner(summoner.name)
@@ -149,8 +154,7 @@ class TrackedSummonersView(object):
     def RequestSummoner(self, name):
         if self.thread is not None:
             return
-        self.errorLabel.setText("Retrieving {0}...".format(name))
-        self.errorLabel.setStyleSheet("QLabel {color:black}")
+        self.statusBar.showMessage("Retrieving {0}...".format(name), 3000)
         self.pendingSummonerName = name
         self.thread = self.RequestSummonerThread(name)
         self.thread.finished.connect(self.RequestDone)
@@ -158,12 +162,13 @@ class TrackedSummonersView(object):
 
     def RequestDone(self):
         if self.thread.success:
-            self.errorLabel.setText("Retrieved {0}".format(self.pendingSummonerName))
-            self.errorLabel.setStyleSheet("QLabel {color:green}")
+            self.statusBar.showMessage("Retrieved {0}".format(self.pendingSummonerName), 3000)
             self.DrawTable()
         else:
-            self.errorLabel.setText("Unable to Retrieve {0}".format(self.pendingSummonerName))
-            self.errorLabel.setStyleSheet("QLabel {color:red}")
+            self.statusBar.showMessage("Unable to Retrieve {0}".format(self.pendingSummonerName), 3000)
+        if self.fromLineEdit:
+            self.lineEdit.setText("")
+            self.fromLineEdit = False
         self.thread = None
 
     class RequestSummonerThread(QtCore.QThread):
@@ -180,10 +185,4 @@ class TrackedSummonersView(object):
             requestId = self.database.RequestSummoner(self.summonerName)
             self.apiConnection.EmptyQueue()
             self.success = self.database.GetRequestStatus(requestId)
-
-    def RetranslateUi(self, TrackedSummonersView):
-        _translate = QtCore.QCoreApplication.translate
-        TrackedSummonersView.setWindowTitle(_translate("TrackedSummonersView", "Tracked Summoners"))
-        self.AddSummonerButton.setText(_translate("TrackedSummonersView", "Request"))
-        self.summonerEntryLabel.setText(_translate("TrackedSummonersView", "Summoner Name"))
 
