@@ -3,7 +3,13 @@
 * To Explore Python and QT Functionality and Grow as a Developer
 * To Analyze Personal League of Legends Game Data
 
-#STATUS 
+# STATUS
+
+#### 06/02/16
+* Frequent Item and Champion Choices
+* Restructured Resources by Version for Latest Data and Lazy Load
+* Static Champion Data
+* Updated to Python 3.5.1 and PyQt 5.5.6
 
 ####05/30/16
 
@@ -21,15 +27,14 @@
 
 #SETUP
 ###Windows Set Up Instructions
-1. Install [Python 3.4.3](https://www.python.org/downloads/release/python-343/)
+1. Install [Python 3.5.1](https://www.python.org/downloads/release/python-351/)
 2. Install the IDE of your choice
    * I recommend [PyCharm](https://www.jetbrains.com/pycharm/download/#section=windows)
 3. Clone the repository
    * GitHub has [Setup Help](https://help.github.com/articles/set-up-git/)
    * PyCharm has [Git Integration](https://www.jetbrains.com/help/pycharm/2016.1/using-git-integration.html)
-4. Install [PyQt5](https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.4.1/)
+4. Install [PyQt5](https://www.riverbankcomputing.com/software/pyqt/download5)
    * This one is a bit tricky, I found it easiest to use the installer provided above.
-   * Make sure you get PyQt5 for Python **3.4**, the latest version is for Python **3.5**
 5. Install the [Requests Library](http://docs.python-requests.org/en/master/)
    * In the command prompt navigate to *C:/Python34/Scripts* (By default)
    * Execute:  **pip install requests**
