@@ -13,7 +13,6 @@ class ApiConnection:
         self.database = database
         self.nextRequestTime = datetime.datetime.now()
 
-
     def UpdateChampions(self):
         response = requests.get("https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?api_key={0}".format(self.database.GetKey()))
         if response.status_code != 200:

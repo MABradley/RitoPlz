@@ -24,7 +24,6 @@ if __name__ == "__main__":
         print("Already Have Valid Key")
     database.CheckForOutdatedSummoners()
     apiConnection.EmptyQueue()
-    #apiConnection.UpdateChampions()
     dataDragon = OnlineResources.DataDragon(database)
     app = QtWidgets.QApplication(sys.argv)
     mainWindow = QtWidgets.QMainWindow()

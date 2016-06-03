@@ -12,7 +12,7 @@ class Database:
         self.cursor = self.conn.cursor()
         
         # Drop Table for Schema Changes
-        #self.cursor.execute('''DROP TABLE Requests''')
+        #self.cursor.execute('''DROP TABLE Champions''')
     
         # Create Table
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS Summoners
@@ -253,7 +253,7 @@ class Database:
         return math.floor(100 * float(wins)/float(len(games)))
 
     # Returns a dictionary of ChampionIds with values of games played
-    def GetMostPlayedChampionsBySummoner(self, summonerId):
+    def GetMostPlayedChampionIdsBySummoner(self, summonerId):
         filter = DataClasses.GameFilter()
         filter.summonerId = summonerId
         champions = dict()

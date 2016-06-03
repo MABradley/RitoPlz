@@ -39,6 +39,18 @@ class DataDragon:
             print("DataDragon: Unable to retrieve static data, response:")
             print(response.text)
 
+
+    def UpdateChampions(self):
+        response = requests.get("https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?api_key={0}".format(self.database.GetKey()))
+        if response.status_code != 200:
+            print("DataDragon: Unable to update champions, response:")
+            print(response.text)
+            return
+        responseDict = json.loads(response.text)
+        for championKey in responseDict["data"]:
+            self.database.InsertUpdateChampion(responseDict["data"][championKey])
+        print("DataDragon: Champion Data Updated")
+
     def GetProfileIconPath(self, profileIconId):
         if os.path.exists(self.profileIconDirectory + 'icon{0}.png'.format(profileIconId)):
             return self.profileIconDirectory + 'icon{0}.png'.format(profileIconId)
