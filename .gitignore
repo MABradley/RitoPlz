@@ -6,6 +6,8 @@ locallol.db
 __pycache__
 .idea
 profileicons/
+itemicons/
+championicons/
 
 # Windows image file caches
 Thumbs.db
