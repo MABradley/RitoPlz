@@ -28,6 +28,16 @@ class Player:
     def Print(self):
         pprint(vars(self))
 
+class Champion:
+    def __init__(self, record):
+        self.championId = record[0]
+        self.name = record[1]
+        self.key = record[2]
+        self.title = record[3]
+
+    def Print(self):
+        pprint(vars(self))
+
 class Request:
     def __init__(self, record):
         self.requestId = record[0]

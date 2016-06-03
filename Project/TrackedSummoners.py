@@ -6,6 +6,7 @@ import os
 import DataClasses
 import Database
 import ApiConnection
+import Widgets
 from functools import partial
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -25,17 +26,17 @@ class TrackedSummonersView(object):
 
     def setupUi(self, TrackedSummonersView):
         TrackedSummonersView.setObjectName("TrackedSummonersView")
-        TrackedSummonersView.resize(500, 530)
+        TrackedSummonersView.resize(7000, 530)
         self.centralwidget = QtWidgets.QWidget(TrackedSummonersView)
         self.centralwidget.setObjectName("centralwidget")
         self.AddSummonerButton = QtWidgets.QPushButton(self.centralwidget)
-        self.AddSummonerButton.setGeometry(QtCore.QRect(390, 475, 93, 28))
+        self.AddSummonerButton.setGeometry(QtCore.QRect(240, 475, 93, 28))
         self.AddSummonerButton.setObjectName("AddSummonerButton")
         self.AddSummonerButton.clicked.connect(self.OnRequest)
         self.tableWidget = None
         self.DrawTable()
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit.setGeometry(QtCore.QRect(10, 480, 371, 22))
+        self.lineEdit.setGeometry(QtCore.QRect(10, 480, 210, 22))
         self.lineEdit.setObjectName("lineEdit")
         self.lineEdit.returnPressed.connect(self.AddSummonerButton.click)
         self.summonerEntryLabel = QtWidgets.QLabel(self.centralwidget)
@@ -56,8 +57,8 @@ class TrackedSummonersView(object):
         summoners = self.database.SelectSummoners(DataClasses.SummonerFilter())
 
         if self.tableWidget is None:
-            self.tableWidget = QtWidgets.QTableWidget(len(summoners), 7, self.centralwidget)
-            self.tableWidget.setGeometry(QtCore.QRect(0, 0, 500, 450))
+            self.tableWidget = QtWidgets.QTableWidget(len(summoners), 9, self.centralwidget)
+            self.tableWidget.setGeometry(QtCore.QRect(0, 0, 800, 450))
             self.tableWidget.verticalHeader().hide()
             #self.tableWidget.horizontalHeader().hide()
             self.tableWidget.setObjectName("tableWidget")
@@ -66,9 +67,11 @@ class TrackedSummonersView(object):
             self.tableWidget.setColumnWidth(2, 50)
             self.tableWidget.setColumnWidth(3, 60)
             self.tableWidget.setColumnWidth(4, 60)
-            self.tableWidget.setColumnWidth(5, 50)
-            self.tableWidget.setColumnWidth(6, 100)
-            self.tableWidget.setHorizontalHeaderLabels(( "", "Summoner Name", "Level","Win %", "Games", "", ""))
+            self.tableWidget.setColumnWidth(5, 150)
+            self.tableWidget.setColumnWidth(6, 160)
+            self.tableWidget.setColumnWidth(7, 50)
+            self.tableWidget.setColumnWidth(8, 90)
+            self.tableWidget.setHorizontalHeaderLabels(( "", "Summoner Name", "Level","Win %", "Games", "Frequent Champions","Frequent Items", "", ""))
             self.tableWidget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             self.tableWidget.setShowGrid(False)
             self.tableWidget.setAlternatingRowColors(True)
@@ -100,6 +103,10 @@ class TrackedSummonersView(object):
             gamesItem.setFlags(QtCore.Qt.ItemIsEnabled)
             gamesItem.setTextAlignment(QtCore.Qt.AlignCenter)
             self.tableWidget.setItem(i, 4, gamesItem)
+            mostPlayedChampionIconItem = Widgets.MostPlayedChampions(self.dataDragon, summoner)
+            self.tableWidget.setCellWidget(i, 5, mostPlayedChampionIconItem)
+            mostBoughtWidget = Widgets.MostBoughtItem(self.dataDragon, summoner)
+            self.tableWidget.setCellWidget(i, 6, mostBoughtWidget)
             refreshItem =  QtWidgets.QWidget()
             refreshLayout = QtWidgets.QHBoxLayout(refreshItem)
             refreshButton = QtWidgets.QPushButton()
@@ -113,7 +120,7 @@ class TrackedSummonersView(object):
             refreshLayout.setContentsMargins(0,0,0,0)
             refreshButton.clicked.connect(partial(self.RefreshSummoner, summoner))
             refreshItem.setLayout(refreshLayout)
-            self.tableWidget.setCellWidget(i, 5, refreshItem)
+            self.tableWidget.setCellWidget(i, 7, refreshItem)
             deleteItem =  QtWidgets.QWidget()
             deleteLayout = QtWidgets.QHBoxLayout(deleteItem)
             deleteButton = QtWidgets.QPushButton()
@@ -127,7 +134,7 @@ class TrackedSummonersView(object):
             deleteLayout.setContentsMargins(0,0,0,0)
             deleteButton.clicked.connect(partial(self.DeleteSummoner, summoner))
             deleteItem.setLayout(deleteLayout)
-            self.tableWidget.setCellWidget(i, 6, deleteItem)
+            self.tableWidget.setCellWidget(i, 8, deleteItem)
 
             self.tableWidget.setRowHeight(i, 50)
             i += 1

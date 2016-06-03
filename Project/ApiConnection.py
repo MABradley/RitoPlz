@@ -6,6 +6,7 @@ import json
 import time
 import datetime
 import DataClasses
+from pprint import pprint
 
 class ApiConnection:
     def __init__(self, database):
@@ -13,20 +14,31 @@ class ApiConnection:
         self.nextRequestTime = datetime.datetime.now()
 
 
+    def UpdateChampions(self):
+        response = requests.get("https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?api_key={0}".format(self.database.GetKey()))
+        if response.status_code != 200:
+            print("ApiConnection: Unable to update champions, response:")
+            print(response.text)
+            return
+        responseDict = json.loads(response.text)
+        for championKey in responseDict["data"]:
+            self.database.InsertUpdateChampion(responseDict["data"][championKey])
+        print("ApiConnection: Champion Data Updated")
+
     def EmptyQueue(self):
         # loose assumption that 5 calls will be timing free:
         i = 0
         while True:
             if self.database.GetNextRequest() is None:
-                print("Request Queue is Empty")
+                print("ApiConnection: Request Queue is Empty")
                 break
             if self.nextRequestTime < datetime.datetime.now():
-                print('Sending Request - Request Count: ' + str(self.database.GetRequestQueueCount()))
+                print('ApiConnection: Sending Request - Request Count: ' + str(self.database.GetRequestQueueCount()))
                 self.HandleNextCall()
                 if (i > 5):
                     time.sleep(1)
             else:
-                print('Sleeping - Request Count: ' + str(self.database.GetRequestQueueCount()))
+                print('ApiConnection: Sleeping - Request Count: ' + str(self.database.GetRequestQueueCount()))
                 time.sleep(1)
             i += 1
 

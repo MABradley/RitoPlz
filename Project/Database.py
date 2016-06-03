@@ -33,7 +33,8 @@ class Database:
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Players (gameId int, summonerId int, teamId int, championId int, win bit, PRIMARY KEY (gameId, summonerId))')
         self.cursor.execute("CREATE TABLE IF NOT EXISTS RequestStatus (requestId int, status int)") # 0 failed, 1 success
         self.cursor.execute("DELETE FROM RequestStatus") # this is only relevant per execution of the application
-    
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS Champions (championId int PRIMARY KEY UNIQUE, name text, key text, title text)")
+
         # Save (commit) the changes
         self.Commit()
         self.key = self.GetKey()
@@ -90,6 +91,7 @@ class Database:
         print('# Summoners: ' + "{:<5}".format(str(len(self.cursor.execute('SELECT * FROM Summoners').fetchall()))) + '#')
         print('# Games    : ' + "{:<5}".format(str(len(self.cursor.execute('SELECT * FROM Games').fetchall()))) + '#')
         print('# Players  : ' + "{:<5}".format(str(len(self.cursor.execute('SELECT * FROM Players').fetchall()))) + '#')
+        print('# Champions: ' + "{:<5}".format(str(len(self.cursor.execute('SELECT * FROM Champions').fetchall()))) + '#')
         print('# Requests : ' + "{:<5}".format(str(len(self.cursor.execute('SELECT * FROM Requests').fetchall()))) + '#')
         print('###################')
     
@@ -150,6 +152,16 @@ class Database:
         self.cursor.execute('''INSERT OR REPLACE INTO Summoners (summonerId, name, profileIconId, revisionDate, summonerLevel, lastUpdated) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}')'''.format(dict["id"], dict["name"], dict["profileIconId"], dict["revisionDate"], dict["summonerLevel"], datetime.datetime.now()))
         self.AddRequest(None, 'https://na.api.pvp.net/api/lol/na/v1.3/game/by-summoner/{0}/recent?api_key={1}'.format(dict["id"], self.key), DataClasses.Request.callType.getRecentGamesBySummoner.value)
         self.Commit()
+
+    def InsertUpdateChampion(self, dict):
+        # this SQL syntax used to support ' character in champion names
+        self.cursor.execute("INSERT OR REPLACE INTO Champions (championId, name, key, title) VALUES (?, ?, ?, ?)", (dict["id"], dict["name"], dict["key"], dict["title"]))
+        self.Commit()
+
+    def GetChampion(self, championId):
+        for champion in self.cursor.execute("SELECT * FROM Champions WHERE championId = {0}".format(championId)):
+            return DataClasses.Champion(champion)
+        return None
 
     def AddRequest(self, priority, url, callType):
         if priority is None:
@@ -239,6 +251,62 @@ class Database:
         #print('Games - ' + str(len(games)))
         #print('Wins - ' + str(wins))
         return math.floor(100 * float(wins)/float(len(games)))
+
+    # Returns a dictionary of ChampionIds with values of games played
+    def GetMostPlayedChampionsBySummoner(self, summonerId):
+        filter = DataClasses.GameFilter()
+        filter.summonerId = summonerId
+        champions = dict()
+        games = self.SelectGames(filter)
+        for game in games:
+            if game.championId in champions:
+                champions[game.championId] += 1
+            else:
+                champions[game.championId] = 1
+        return champions
+    
+    def GetMostBoughtItemsBySummoner(self, summonerId):
+        filter = DataClasses.GameFilter()
+        filter.summonerId = summonerId
+        items = dict()
+        games = self.SelectGames(filter)
+        for game in games:
+            if game.item0 is not None:
+                if game.item0 in items.keys():
+                    items[game.item0] += 1
+                else:
+                    items[game.item0] = 1
+            if game.item1 is not None:
+                if game.item1 in items.keys():
+                    items[game.item1] += 1
+                else:
+                    items[game.item1] = 1
+            if game.item2 is not None:
+                if game.item2 in items.keys():
+                    items[game.item2] += 1
+                else:
+                    items[game.item2] = 1
+            if game.item3 is not None:
+                if game.item3 in items.keys():
+                    items[game.item3] += 1
+                else:
+                    items[game.item3] = 1
+            if game.item4 is not None:
+                if game.item4 in items.keys():
+                    items[game.item4] += 1
+                else:
+                    items[game.item4] = 1
+            if game.item5 is not None:
+                if game.item5 in items.keys():
+                    items[game.item5] += 1
+                else:
+                    items[game.item5] = 1
+            if game.item6 is not None:
+                if game.item6 in items.keys():
+                    items[game.item6] += 1
+                else:
+                    items[game.item6] = 1
+        return items
 
     def GetWinRateForFilter(self, gameFilter):
         if not isinstance(gameFilter, DataClasses.GameFilter):
