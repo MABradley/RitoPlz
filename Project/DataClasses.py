@@ -235,5 +235,24 @@ class SummonerFilter:
         if not self.hasFirstCondition:
             return ""
         #print("WhereClause: " + whereClause)
-        return whereClause
-            
+
+class TrackedSummonerColumn:
+    def __init__(self, record):
+        if record is None:
+            return
+        self.trackedSummonerColumnId = record[0]
+        self.name = record[1]
+        self.display = record[2]
+        self.width = record[3]
+
+    def Print(self):
+        pprint(vars(self))
+
+
+
+def CreateTrackedSummonerColumn(name, display, width):
+    data = TrackedSummonerColumn(None)
+    data.name = name
+    data.display = display
+    data.width = width
+    return data

@@ -12,7 +12,7 @@ class Database:
         self.cursor = self.conn.cursor()
         
         # Drop Table for Schema Changes
-        #self.cursor.execute('''DROP TABLE Champions''')
+        #self.cursor.execute('''DROP TABLE TrackedSummonerColumns''')
     
         # Create Table
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS Summoners
@@ -34,6 +34,7 @@ class Database:
         self.cursor.execute("CREATE TABLE IF NOT EXISTS RequestStatus (requestId int, status int)") # 0 failed, 1 success
         self.cursor.execute("DELETE FROM RequestStatus") # this is only relevant per execution of the application
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Champions (championId int PRIMARY KEY UNIQUE, name text, key text, title text)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS TrackedSummonerColumns (trackedSummonerColumnId INTEGER PRIMARY KEY NOT NULL UNIQUE, name text, display bit, width int)")
 
         # Save (commit) the changes
         self.Commit()
@@ -85,6 +86,33 @@ class Database:
         for row in self.cursor.execute('SELECT key FROM keys'):
             return row[0]
         return ""
+
+    def GetTrackedSummonerColumns(self):
+        result = set()
+        for row in self.cursor.execute("SELECT * FROM TrackedSummonerColumns"):
+            result.add(DataClasses.TrackedSummonerColumn(row))
+        return result
+
+    def UpdateTrackedSummonerColumn(self, trackedSummonerColumn):
+        if not isinstance(trackedSummonerColumn, DataClasses.TrackedSummonerColumn):
+            raise TypeError('trackedSummonerColumn must be of type DataClasses.TrackedSummonerColumn')
+        self.cursor.execute("UPDATE TrackedSummonerColumns SET name = '{0}', display = {1}, width = {2} WHERE trackedSummonerColumnId = {3}".format(trackedSummonerColumn.name, int(trackedSummonerColumn.display), trackedSummonerColumn.width, trackedSummonerColumn.trackedSummonerColumnId))
+        self.Commit()
+
+    def InitializeTrackedSummonerColumns(self):
+        self.InsertTrackedSummonerColumn(DataClasses.CreateTrackedSummonerColumn("Level", True, 50))
+        self.InsertTrackedSummonerColumn(DataClasses.CreateTrackedSummonerColumn("Win %", True, 60))
+        self.InsertTrackedSummonerColumn(DataClasses.CreateTrackedSummonerColumn("Games", True, 60))
+        self.InsertTrackedSummonerColumn(DataClasses.CreateTrackedSummonerColumn("Frequent Champions", True, 150))
+        self.InsertTrackedSummonerColumn(DataClasses.CreateTrackedSummonerColumn("Best Champions", True, 150))
+        self.InsertTrackedSummonerColumn(DataClasses.CreateTrackedSummonerColumn("Frequent Items", True, 150))
+
+    def InsertTrackedSummonerColumn(self, trackedSummonerColumn):
+        if not isinstance(trackedSummonerColumn, DataClasses.TrackedSummonerColumn):
+            raise TypeError('trackedSummonerColumn must be of type DataClasses.TrackedSummonerColumn')
+        self.cursor.execute("INSERT INTO TrackedSummonerColumns (name, display, width) VALUES ('{0}', {1}, {2})".format(trackedSummonerColumn.name, int(trackedSummonerColumn.display), trackedSummonerColumn.width))
+        self.Commit()
+
 
     def PrintTableCounts(self):
         print('## RECORD COUNTS ##')
@@ -307,6 +335,19 @@ class Database:
                 else:
                     items[game.item6] = 1
         return items
+
+    def GetHighestWinRateChampionIdsBySummoner(self, summonerId):
+        filter = DataClasses.GameFilter()
+        filter.summonerId = summonerId
+        championIds = set()
+        championIdsWithRates = dict()
+        for row in self.cursor.execute("SELECT DISTINCT championId FROM Games " + filter.GetWhereClause()):
+            championIds.add(row[0])
+        for championId in championIds:
+            filter.championId = championId
+            championIdsWithRates[championId] = self.GetWinRateForFilter(filter)
+        return championIdsWithRates
+
 
     def GetWinRateForFilter(self, gameFilter):
         if not isinstance(gameFilter, DataClasses.GameFilter):

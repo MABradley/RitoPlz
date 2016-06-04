@@ -5,6 +5,9 @@
 
 # STATUS
 
+#### 06/04/16
+* Optional Columns With Toggle
+
 #### 06/02/16
 * Frequent Item and Champion Choices
 * Restructured Resources by Version for Latest Data and Lazy Load

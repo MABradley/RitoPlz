@@ -5,6 +5,58 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from pprint import pprint
 import operator
 
+class HighestWinRateChampions(QtWidgets.QWidget):
+
+    def __init__(self, dataDragon, summoner, parent=None):
+        super(HighestWinRateChampions,self).__init__(parent)
+
+        # add your buttons
+        layout = QtWidgets.QGridLayout()
+
+        # adjust spacings to your needs
+        layout.setContentsMargins(0,0,0,0)
+        layout.setSpacing(0)
+
+
+        champ1 = None
+        champ2 = None
+        champ3 = None
+
+        championIds = dataDragon.database.GetHighestWinRateChampionIdsBySummoner(summoner.summonerId)
+        sortedChampionIds = sorted(championIds.items(), key=operator.itemgetter(1), reverse=True)
+        #pprint(sortedChampions)
+        for champ in sortedChampionIds:
+            #print("champ[0]:"+str(champ[0]))
+            if champ1 is None:
+                champ1 = dataDragon.database.GetChampion(champ[0])
+                if champ1 is None:
+                    dataDragon.UpdateChampions()
+                    champ1 = dataDragon.database.GetChampion(champ[0])
+                label = QtWidgets.QLabel()
+                label.setPixmap(QtGui.QPixmap(dataDragon.GetChampionIconPath(champ1)).scaled(50, 50, QtCore.Qt.KeepAspectRatio))
+                layout.addWidget(label, 0, 0)
+            elif champ2 is None:
+                champ2 = dataDragon.database.GetChampion(champ[0])
+                if champ2 is None:
+                    dataDragon.UpdateChampions()
+                    champ2 = dataDragon.database.GetChampion(champ[0])
+                label1 = QtWidgets.QLabel()
+                label1.setPixmap(QtGui.QPixmap(dataDragon.GetChampionIconPath(champ2)).scaled(50, 50, QtCore.Qt.KeepAspectRatio))
+                layout.addWidget(label1, 0, 1)
+            elif champ3 is None:
+                champ3 = dataDragon.database.GetChampion(champ[0])
+                if champ3 is None:
+                    dataDragon.UpdateChampions()
+                    champ3 = dataDragon.database.GetChampion(champ[0])
+                label2 = QtWidgets.QLabel()
+                label2.setPixmap(QtGui.QPixmap(dataDragon.GetChampionIconPath(champ3)).scaled(50, 50, QtCore.Qt.KeepAspectRatio))
+                layout.addWidget(label2, 0, 2)
+            else:
+                break
+
+        layout.setAlignment(QtCore.Qt.AlignLeft)
+        self.setLayout(layout)
+
 class MostPlayedChampions(QtWidgets.QWidget):
 
     def __init__(self, dataDragon, summoner, parent=None):
