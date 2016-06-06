@@ -4,7 +4,7 @@
 * To Analyze Personal League of Legends Game Data
 
 Python Version: 3.4.3+
-*Feel free to execute using later versions of Python, but it must execute in 3.4.3*
+ *Feel free to execute using later versions of Python, but it must execute in 3.4.3*
 
 # STATUS
 
@@ -42,7 +42,7 @@ Python Version: 3.4.3+
 4. Install [PyQt5](https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.4.1/)
    * This one is a bit tricky, I found it easiest to use the installer provided above.
 5. Install the [Requests Library](http://docs.python-requests.org/en/master/)
-   * In the command prompt navigate to *C:/Python35/Scripts* (By default)
+   * In the command prompt navigate to *C:/Python34/Scripts* (By default)
    * Execute:  **pip install requests**
 6. Input a [Riot Games Developer Key](https://developer.riotgames.com)
    * If you have a [League of Legends](http://na.leagueoflegends.com/) account, use those credentials to retrieve a key
