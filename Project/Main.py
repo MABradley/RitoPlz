@@ -29,7 +29,8 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     mainWindow = QtWidgets.QMainWindow()
     trackedSummonersView = TrackedSummoners.TrackedSummonersView(database, dataDragon, apiConnection, mainWindow)
-    columnsMenu = mainWindow.menuBar().addMenu('Columns')
+    viewMenu = mainWindow.menuBar().addMenu('View')
+    columnsMenu = viewMenu.addMenu('Columns')
     columnToggle = dict()
     columns = database.GetTrackedSummonerColumns()
     for column in columns:

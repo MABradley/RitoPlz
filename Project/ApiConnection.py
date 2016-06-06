@@ -66,7 +66,7 @@ class ApiConnection:
             else:
                 raise ValueError('Unknown CallType: {0}'.format(request.callType))
         elif response.status_code == 429:
-            self.nextRequestTime = datetime.datetime.now() + datetime.timedelta(0,response.headers.get("Retry-After", 1))
+            self.nextRequestTime = datetime.datetime.now() + datetime.timedelta(0,int(response.headers.get("Retry-After", 1)))
         elif response.status_code == 404:
             self.database.AddRequestStatus(request.requestId, 0)
             print('ApiConnection: 404 from Riot API (probably specified invalid summoner name) deleting request')
@@ -74,6 +74,7 @@ class ApiConnection:
         else:
             self.database.AddRequestStatus(request.requestId, 0)
             print('ApiConnection: Unhandled Status Code ({0}) from Riot API, deleting the following request to continue execution:'.format(response.status_code))
+            self.database.DeleteRequest(request.requestId)
             request.Print()
 
 
