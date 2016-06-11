@@ -44,7 +44,12 @@ Python Version: 3.4.3+
 5. Install the [Requests Library](http://docs.python-requests.org/en/master/)
    * In the command prompt navigate to *C:/Python34/Scripts* (By default)
    * Execute:  **pip install requests**
-6. Input a [Riot Games Developer Key](https://developer.riotgames.com)
+
+###Linux Set Up Instructions
+Coming Soon!
+
+###Getting Started
+Input a [Riot Games Developer Key](https://developer.riotgames.com)
    * If you have a [League of Legends](http://na.leagueoflegends.com/) account, use those credentials to retrieve a key
    * If not, contact someone who does. (I would be happy to send you mine for development purposes)
    * Run "Main.py" under */reposoitoryDirectory/project* and input the key when prompted
