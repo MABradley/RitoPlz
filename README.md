@@ -48,6 +48,8 @@ Python Version: 3.4.3+
 ###Linux Set Up Instructions
 Coming Soon!
 
+We are currently reviewing the universal packaging [Flatpak](http://flatpak.org/) and [Snap](https://developer.ubuntu.com/en/snappy/build-apps/).
+
 ###Getting Started
 Input a [Riot Games Developer Key](https://developer.riotgames.com)
    * If you have a [League of Legends](http://na.leagueoflegends.com/) account, use those credentials to retrieve a key
