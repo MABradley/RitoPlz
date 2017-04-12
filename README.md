@@ -1,5 +1,6 @@
-#SUMMARY
-####There are Two Primary Purposes to This Project
+# SUMMARY
+
+## There are Two Primary Purposes to This Project
 * To Explore Python and QT Functionality and Grow as a Developer
 * To Analyze Personal League of Legends Game Data
 
@@ -8,31 +9,28 @@ Python Version: 3.4.3+
 
 # STATUS
 
-#### 06/04/16
+## 06/04/16
 * Optional Columns With Toggle
 
-#### 06/02/16
+## 06/02/16
 * Frequent Item and Champion Choices
 * Restructured Resources by Version for Latest Data and Lazy Load
 * Static Champion Data
 * Updated to Python 3.5.1 and PyQt 5.5.6
 
-####05/30/16
-
+## 05/30/16
 * Tracked Summoners Window
 * Profile Icon Fetching
 * Summoner Requests in Separate Thread
 
-####05/28/2016
-
+## 05/28/2016
 * Basic Classes and Methods for Data Access
 
-####05/25/2016
-
+## 05/25/2016
 * Proof of Concept Methods
 
-#SETUP
-###Windows Set Up Instructions
+# SETUP
+## Windows Set Up Instructions
 1. Install [Python 3.4.3](https://www.python.org/downloads/release/python-343/)
 2. Install the IDE of your choice
    * I recommend [PyCharm](https://www.jetbrains.com/pycharm/download/#section=windows)
@@ -45,24 +43,24 @@ Python Version: 3.4.3+
    * In the command prompt navigate to *C:/Python34/Scripts* (By default)
    * Execute:  **pip install requests**
 
-###Linux Set Up Instructions
+## Linux Set Up Instructions
 Coming Soon!
 
 We are currently reviewing the universal packaging [Flatpak](http://flatpak.org/) and [Snap](https://developer.ubuntu.com/en/snappy/build-apps/).
 
-###Getting Started
+## Getting Started
 Input a [Riot Games Developer Key](https://developer.riotgames.com)
    * If you have a [League of Legends](http://na.leagueoflegends.com/) account, use those credentials to retrieve a key
    * If not, contact someone who does. (I would be happy to send you mine for development purposes)
    * Run "Main.py" under */reposoitoryDirectory/project* and input the key when prompted
 
-#CONVENTIONS
+# CONVENTIONS
 * Property names and local variables should be camel case
 * Class and method names should be pascal case
 * SQL keywords should be uppercase
 * Commented code should be correctly indented after un-commenting
 
-#COPYRIGHT
+# COPYRIGHT
 Copyright (c) 2016 Matthew A Bradley
 
 Permission is hereby granted, free of charge, to any person obtaining a
@@ -82,5 +80,3 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-
